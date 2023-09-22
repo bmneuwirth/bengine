@@ -31,12 +31,12 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     const char* fShaderCode = fragmentStr.c_str();
 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vShaderCode, NULL);
+    glShaderSource(vertexShader, 1, &vShaderCode, nullptr);
     glCompileShader(vertexShader);
     checkCompileErrors(vertexShader, "VERTEX");
 
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
+    glShaderSource(fragmentShader, 1, &fShaderCode, nullptr);
     glCompileShader(fragmentShader);
     checkCompileErrors(fragmentShader, "FRAGMENT");
 
@@ -54,11 +54,11 @@ Shader::~Shader() {
     glDeleteProgram(programID);
 }
 
-void Shader::use() {
+void Shader::use() const {
     glUseProgram(programID);
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string type)
+void Shader::checkCompileErrors(unsigned int shader, const std::string& type)
 {
     int success;
     char infoLog[1024];
@@ -67,7 +67,7 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type)
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success)
         {
-            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << std::endl;
         }
     }
@@ -76,8 +76,12 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type)
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+            glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << std::endl;
         }
     }
+}
+
+void Shader::setInt(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(programID, name.c_str()), (int)value);
 }

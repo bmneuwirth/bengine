@@ -3,13 +3,13 @@
   "version-string" : "1.0.0",
   "builtin-baseline" : "4c6db587c4ea29a4cdda43be364112e8effbdaea",
   "dependencies" : [ {
-    "name" : "glew",
-    "version>=" : "2.2.0#3"
-  }, {
     "name" : "sdl2",
     "version>=" : "2.28.3"
   }, {
     "name" : "opengl",
     "version>=" : "2022-12-04#3"
+  }, {
+    "name" : "glew",
+    "version>=" : "2.2.0#3"
   } ]
 }

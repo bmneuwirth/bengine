@@ -12,11 +12,12 @@ public:
     Shader& operator=(const Shader& other) = delete;
 
     // TODO: Add move operators
-    void use();
+    void use() const;
+    void setInt(const std::string &name, int value) const;
 private:
     GLuint programID;
 
-    void checkCompileErrors(unsigned int shader, std::string type);
+    static void checkCompileErrors(unsigned int shader, const std::string& type);
 };
 
 

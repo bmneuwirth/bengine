@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include "shader.h"
+#include "texture.h"
 
 class Game {
 public:
@@ -15,10 +16,10 @@ private:
     bool init();
 
     //Initializes rendering program and clear color
-    bool initGL();
+    void initGL();
 
     //Input handler
-    void handleKeys( unsigned char key, int x, int y );
+    void handleKeys(unsigned char key);
 
     //Per frame update
     void update();
@@ -30,7 +31,7 @@ private:
     void close();
 
     //The window we'll be rendering to
-    SDL_Window* gWindow = NULL;
+    SDL_Window* gWindow = nullptr;
 
     //OpenGL context
     SDL_GLContext gContext;

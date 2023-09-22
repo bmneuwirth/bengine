@@ -7,6 +7,6 @@ const int SCREEN_HEIGHT = 480;
 
 int main( int argc, char* args[] )
 {
-    std::unique_ptr<Game>(new Game(SCREEN_WIDTH, SCREEN_HEIGHT));
+    std::unique_ptr<Game> game(new Game(SCREEN_WIDTH, SCREEN_HEIGHT));
     return 0;
 }

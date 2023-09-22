@@ -1,9 +1,11 @@
-#include <stdio.h>
+#include <cstdio>
+#include <memory>
 #include <iostream>
 #include <SDL.h>
 #include <GL/glew.h>
 
 #include "game.h"
+#include "texture.h"
 
 Game::Game(int width, int height)
 {
@@ -41,7 +43,7 @@ Game::Game(int width, int height)
                 {
                     int x = 0, y = 0;
                     SDL_GetMouseState( &x, &y );
-                    handleKeys( e.text.text[ 0 ], x, y );
+                    handleKeys(e.text.text[0]);
                 }
             }
 
@@ -82,7 +84,7 @@ bool Game::init()
 
         //Create window
         gWindow = SDL_CreateWindow( "Program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
-        if( gWindow == NULL )
+        if( gWindow == nullptr )
         {
             printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
             success = false;
@@ -91,7 +93,7 @@ bool Game::init()
         {
             //Create context
             gContext = SDL_GL_CreateContext( gWindow );
-            if( gContext == NULL )
+            if( gContext == nullptr )
             {
                 printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
                 success = false;
@@ -113,11 +115,7 @@ bool Game::init()
                 }
 
                 //Initialize OpenGL
-                if( !initGL() )
-                {
-                    printf( "Unable to initialize OpenGL!\n" );
-                    success = false;
-                }
+                initGL();
             }
         }
     }
@@ -125,38 +123,58 @@ bool Game::init()
     return success;
 }
 
-bool Game::initGL()
+void Game::initGL()
 {
-    //Success flag
-    bool success = true;
-
     float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f
+            // positions          // colors           // texture coords
+            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+    };
+    unsigned int indices[] = {
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
     };
 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    gameShader = std::unique_ptr<Shader>(new Shader("../shaders/vertex.shader", "../shaders/frag.shader"));
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
     glGenVertexArrays(1, &VAO);
+
+    unsigned int VBO, EBO;
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    return success;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)nullptr);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    gameShader = std::make_unique<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
+    Texture stone("../textures/stone.png");
+    gameShader->use();
+    gameShader->setInt("texture0", 0);
+    stone.bind();
+
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL initialization error: " << err << std::endl;
+    }
+
 }
 
-void Game::handleKeys(unsigned char key, int x, int y )
+void Game::handleKeys(unsigned char key)
 {
     //Toggle quad
     if( key == 'q' )
@@ -179,7 +197,7 @@ void Game::render()
     {
         gameShader->use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 }
 
@@ -187,7 +205,7 @@ void Game::close()
 {
     //Destroy window
     SDL_DestroyWindow( gWindow );
-    gWindow = NULL;
+    gWindow = nullptr;
 
     //Quit SDL subsystems
     SDL_Quit();
