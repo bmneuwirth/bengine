@@ -7,5 +7,5 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 
-add_executable(cubelands main.cpp game.cpp game.h shader.cpp shader.h)
+add_executable(cubelands main.cpp game.cpp game.h shader.cpp shader.h stb_image.h)
 target_link_libraries(cubelands ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} GLEW::GLEW)

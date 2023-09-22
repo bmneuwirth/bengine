@@ -6,8 +6,6 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // load the vertex shader and the fragment shader
-    this->vertexPath = vertexPath;
-    this->fragmentPath = fragmentPath;
     std::ifstream vShaderFile(vertexPath);
     if (!vShaderFile.is_open()) {
         throw std::invalid_argument("Could not open the vertex file");
