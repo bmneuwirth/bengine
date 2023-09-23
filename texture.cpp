@@ -17,7 +17,7 @@ Texture::Texture(const char *filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    int width, height, nrChannels;
+    int nrChannels;
     unsigned char *data = stbi_load(filePath, &width, &height, &nrChannels, 0);
     if (data)
     {
@@ -40,4 +40,12 @@ Texture::Texture(const char *filePath) {
 
 void Texture::bind() const {
     glBindTexture(GL_TEXTURE_2D, texture);
+}
+
+int Texture::getWidth() {
+    return width;
+}
+
+int Texture::getHeight() {
+    return height;
 }

@@ -9,8 +9,14 @@ class Texture {
 public:
     explicit Texture(const char* filePath);
     void bind() const;
-    unsigned int texture;
+
+    int getWidth();
+    int getHeight();
+
 private:
+    unsigned int texture;
+    int width;
+    int height;
 };
 
 

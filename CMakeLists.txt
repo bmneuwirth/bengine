@@ -10,5 +10,8 @@ include_directories(${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_D
 add_executable(cubelands main.cpp game.cpp game.h shader.cpp shader.h stb_image.h
         texture.cpp
         texture.h
-        texture.h)
+        texture.h
+        object.cpp
+        object.h
+        object.h)
 target_link_libraries(cubelands ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} GLEW::GLEW)
