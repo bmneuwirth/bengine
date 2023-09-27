@@ -3,6 +3,8 @@
 #include <iostream>
 #include <SDL.h>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "game.h"
 #include "texture.h"
@@ -161,10 +163,13 @@ void Game::initGL()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    glm::mat4 trans = glm::mat4(1.0f);
+
     gameShader = std::make_unique<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
     Texture stone("../textures/stone.png");
     gameShader->use();
     gameShader->setInt("texture0", 0);
+    gameShader->setMat4("transform", glm::value_ptr(trans));
     stone.bind();
 
     GLenum err;
@@ -195,7 +200,12 @@ void Game::render()
 
     if (gRenderQuad)
     {
+        float time = SDL_GetTicks() / 1000.0f;
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(glm::cos(time) / 2, glm::sin(time) / 2, 0));
+        trans = glm::rotate(trans, time, glm::vec3(0, 0, 1));
         gameShader->use();
+        gameShader->setMat4("transform", glm::value_ptr(trans));
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }

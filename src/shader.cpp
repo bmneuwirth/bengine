@@ -85,3 +85,7 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type)
 void Shader::setInt(const std::string &name, int value) const {
     glUniform1i(glGetUniformLocation(programID, name.c_str()), (int)value);
 }
+
+void Shader::setMat4(const std::string &name, const float* value) const {
+    glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, value);
+}
