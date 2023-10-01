@@ -7,14 +7,20 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 const float SPEED = 2.0f;
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
 const float SENSITIVITY =  0.1f;
+const float V_FOV = 45.0f;
+const float Z_NEAR = 0.1f;
+const float Z_FAR = 100.0f;
 const bool CONSTRAIN_PITCH = true;
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up, bool flyMode) {
+Camera::Camera(int screenWidth, int screenHeight, glm::vec3 pos, glm::vec3 up, bool flyMode) {
+    proj = glm::perspective(glm::radians(V_FOV), (float)screenWidth/(float)screenHeight, Z_NEAR, Z_FAR);
+
     this->pos = pos;
     this->worldUp = up;
     this->yaw = YAW;
@@ -64,4 +70,8 @@ void Camera::updateDir() {
 
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
+}
+
+glm::mat4 Camera::getProjMatrix() {
+    return proj;
 }

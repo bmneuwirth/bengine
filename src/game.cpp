@@ -23,44 +23,14 @@ Game::Game(int width, int height)
         //Main loop flag
         bool quit = false;
 
-        //Event handler
-        SDL_Event e;
-
         //While application is running
         while( !quit )
         {
-            //Handle events on queue
-            while( SDL_PollEvent( &e ) != 0 )
-            {
-                //User requests quit
-                if( e.type == SDL_QUIT ) {
-                    quit = true;
-                }
-                else if ( e.type == SDL_MOUSEMOTION) {
-                    gameCamera->processMouse(e.motion.xrel, e.motion.yrel);
-                }
+            if (!update()) {
+                quit = true;
             }
 
-            const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
-            float forward = 0;
-            float right = 0;
-
-            if (currentKeyStates[SDL_SCANCODE_W]) {
-                forward += 1;
-            }
-            if (currentKeyStates[SDL_SCANCODE_S]) {
-                forward -= 1;
-            }
-            if (currentKeyStates[SDL_SCANCODE_D]) {
-                right += 1;
-            }
-            if (currentKeyStates[SDL_SCANCODE_A]) {
-                right -= 1;
-            }
-            // TODO don't hard code dt
-            gameCamera->processMovement(.06, forward, right);
-
-            //Render quad
+            //Render
             render();
 
             //Update screen
@@ -68,9 +38,6 @@ Game::Game(int width, int height)
             glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
         }
-
-        //Disable text input
-        SDL_StopTextInput();
     }
 
     //Free resources and close SDL
@@ -140,81 +107,20 @@ bool Game::init()
 
 void Game::initGL()
 {
-    glEnable(GL_DEPTH_TEST);
+    // Load textures
+    std::shared_ptr<Texture> stone = std::make_shared<Texture>("../textures/stone.png");
 
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    renderer = std::make_unique<Renderer>();
+    gameCamera = std::make_shared<Camera>(screenWidth, screenHeight, glm::vec3(0.0f, 0.0f, 3.0f));
+    renderer->setCamera(gameCamera);
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    object = std::make_shared<Object>(stone, glm::vec3(0, 1, 0));
+    object2 = std::make_shared<Object>(stone, glm::vec3(2, 0, 0));
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    glGenVertexArrays(1, &VAO);
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    gameCamera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 proj = glm::mat4(1.0f);
-    proj = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-
-    gameShader = std::make_unique<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
-    Texture stone("../textures/stone.png");
-    gameShader->use();
+    gameShader = std::make_shared<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
+    renderer->setShader(gameShader);
     gameShader->setInt("texture0", 0);
-    gameShader->setMat4("model", glm::value_ptr(model));
-    gameShader->setMat4("view", glm::value_ptr(gameCamera->getViewMatrix()));
-    gameShader->setMat4("projection", glm::value_ptr(proj));
-    stone.bind();
+    stone->bind();
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -223,37 +129,55 @@ void Game::initGL()
 
 }
 
-void Game::handleKeys(unsigned char key)
+bool Game::update()
 {
-    //Toggle quad
-    if( key == 'q' )
-    {
-        gRenderQuad = !gRenderQuad;
-    }
-}
+    //Event handler
+    SDL_Event e;
 
-void Game::update()
-{
-    //No per frame update needed
+    while( SDL_PollEvent( &e ) != 0 )
+    {
+        //User requests quit
+        if( e.type == SDL_QUIT ) {
+            return false;
+        }
+        else if ( e.type == SDL_MOUSEMOTION) {
+            gameCamera->processMouse(e.motion.xrel, e.motion.yrel);
+        }
+    }
+
+    const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+    float forward = 0;
+    float right = 0;
+
+    if (currentKeyStates[SDL_SCANCODE_W]) {
+        forward += 1;
+    }
+    if (currentKeyStates[SDL_SCANCODE_S]) {
+        forward -= 1;
+    }
+    if (currentKeyStates[SDL_SCANCODE_D]) {
+        right += 1;
+    }
+    if (currentKeyStates[SDL_SCANCODE_A]) {
+        right -= 1;
+    }
+    // TODO don't hard code dt
+    gameCamera->processMovement(.06, forward, right);
+
+    // rotate cube
+    float time = SDL_GetTicks() / 1000.0f;
+    glm::mat4 rot = glm::mat4(1.0f);
+    rot = glm::rotate(rot, time, glm::vec3(1, 1, 0));
+    object->setRot(rot);
+
+    return true;
 }
 
 void Game::render()
 {
-    //Clear color buffer
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    if (gRenderQuad)
-    {
-        float time = SDL_GetTicks() / 1000.0f;
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, time, glm::vec3(1, 1, 0));
-        glm::mat4 view = gameCamera->getViewMatrix();
-        gameShader->use();
-        gameShader->setMat4("model", glm::value_ptr(model));
-        gameShader->setMat4("view", glm::value_ptr(view));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    renderer->startDraw();
+    renderer->draw(object);
+    renderer->draw(object2);
 }
 
 void Game::close()

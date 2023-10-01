@@ -7,49 +7,66 @@
 #include "shader.h"
 #include "texture.h"
 #include "camera.h"
+#include "object.h"
+#include "renderer.h"
 
 class Game {
 public:
+    /**
+     * Creates a game with a given screen width and height
+     * @param width
+     * @param height
+     */
     Game(int width, int height);
 
 private:
-    //Starts up SDL, creates window, and initializes OpenGL
+    /**
+     * Starts up SDL, creates window, and initializes OpenGL
+     * @return whether the initialization was successful
+     */
     bool init();
 
-    //Initializes rendering program and clear color
+    /**
+     * Initializes rendering program
+     */
     void initGL();
 
-    //Input handler
-    void handleKeys(unsigned char key);
+    /**
+     * Updates the game based on new inputs and past state
+     * @return whether the update was successful
+     */
+    bool update();
 
-    //Per frame update
-    void update();
-
-    //Renders quad to the screen
+    /**
+     * Renders game content to the screen
+     */
     void render();
 
-    //Frees media and shuts down SDL
+    /**
+     * Frees media and shuts down SDL
+     */
     void close();
 
-    //The window we'll be rendering to
+    // The window rendered to
     SDL_Window* gWindow = nullptr;
 
-    //OpenGL context
+    // OpenGL context
     SDL_GLContext gContext;
 
-    std::unique_ptr<Shader> gameShader;
+    // Shader
+    std::shared_ptr<Shader> gameShader;
 
-    //Render flag
-    bool gRenderQuad = true;
-
-    // VAO
-    GLuint VAO;
+    std::unique_ptr<Renderer> renderer;
 
     int screenWidth;
 
     int screenHeight;
 
-    std::unique_ptr<Camera> gameCamera;
+    std::shared_ptr<Camera> gameCamera;
+
+    std::shared_ptr<Object> object;
+
+    std::shared_ptr<Object> object2;
 };
 
 #endif //CUBELANDS_GAME_H
