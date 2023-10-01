@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include "shader.h"
 #include "texture.h"
+#include "camera.h"
 
 class Game {
 public:
@@ -47,6 +48,8 @@ private:
     int screenWidth;
 
     int screenHeight;
+
+    std::unique_ptr<Camera> gameCamera;
 };
 
 #endif //CUBELANDS_GAME_H

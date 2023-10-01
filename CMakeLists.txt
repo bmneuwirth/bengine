@@ -14,5 +14,5 @@ add_executable(cubelands src/main.cpp src/game.cpp src/game.h src/shader.cpp src
         src/texture.h
         src/object.cpp
         src/object.h
-        src/object.h)
+        src/object.h src/camera.cpp src/camera.h src/camera.h src/camera.cpp)
 target_link_libraries(cubelands ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} GLEW::GLEW glm::glm)

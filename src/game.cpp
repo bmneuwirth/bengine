@@ -40,7 +40,7 @@ Game::Game(int width, int height)
                 {
                     quit = true;
                 }
-                    //Handle keypress with current mouse position
+                //Handle keypress with current mouse position
                 else if( e.type == SDL_TEXTINPUT )
                 {
                     int x = 0, y = 0;
@@ -48,6 +48,26 @@ Game::Game(int width, int height)
                     handleKeys(e.text.text[0]);
                 }
             }
+
+            const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+            float forward = 0;
+            float right = 0;
+
+            if (currentKeyStates[SDL_SCANCODE_W]) {
+                forward += 1;
+            }
+            if (currentKeyStates[SDL_SCANCODE_S]) {
+                forward -= 1;
+            }
+            if (currentKeyStates[SDL_SCANCODE_D]) {
+                right += 1;
+            }
+            if (currentKeyStates[SDL_SCANCODE_A]) {
+                right -= 1;
+            }
+            // TODO don't hard code dt
+            gameCamera->processMovement(.06, forward, right);
+
 
             //Render quad
             render();
@@ -186,15 +206,12 @@ void Game::initGL()
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
     glEnableVertexAttribArray(0);
-    // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
+    gameCamera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, -3.0f));
     glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 proj = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     proj = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
 
     gameShader = std::make_unique<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
@@ -202,7 +219,7 @@ void Game::initGL()
     gameShader->use();
     gameShader->setInt("texture0", 0);
     gameShader->setMat4("model", glm::value_ptr(model));
-    gameShader->setMat4("view", glm::value_ptr(view));
+    gameShader->setMat4("view", glm::value_ptr(gameCamera->getViewMatrix()));
     gameShader->setMat4("projection", glm::value_ptr(proj));
     stone.bind();
 
@@ -237,9 +254,10 @@ void Game::render()
         float time = SDL_GetTicks() / 1000.0f;
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, time, glm::vec3(1, 1, 0));
-        // model = glm::translate(model, glm::vec3(glm::cos(time) / 2, glm::sin(time) / 2, 0));
+        glm::mat4 view = gameCamera->getViewMatrix();
         gameShader->use();
         gameShader->setMat4("model", glm::value_ptr(model));
+        gameShader->setMat4("view", glm::value_ptr(view));
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
