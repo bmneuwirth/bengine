@@ -23,6 +23,7 @@ void Renderer::startDraw() {
 
 void Renderer::draw(std::shared_ptr<Object> obj) {
     curShader->setMat4("model", glm::value_ptr(obj->getModel()));
+    obj->getTexture()->bind();
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);

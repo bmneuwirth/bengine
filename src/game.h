@@ -67,6 +67,8 @@ private:
     std::shared_ptr<Object> object;
 
     std::shared_ptr<Object> object2;
+
+    std::shared_ptr<Object> object3;
 };
 
 #endif //CUBELANDS_GAME_H

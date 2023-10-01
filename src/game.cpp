@@ -3,7 +3,6 @@
 #include <iostream>
 #include <SDL.h>
 #include <GL/glew.h>
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "game.h"
@@ -32,11 +31,6 @@ Game::Game(int width, int height)
 
             //Render
             render();
-
-            //Update screen
-            SDL_GL_SwapWindow( gWindow );
-            glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
         }
     }
 
@@ -65,7 +59,7 @@ bool Game::init()
         SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
         //Create window
-        gWindow = SDL_CreateWindow( "Program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+        gWindow = SDL_CreateWindow( "Bengine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
         if( gWindow == nullptr )
         {
             printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -109,18 +103,20 @@ void Game::initGL()
 {
     // Load textures
     std::shared_ptr<Texture> stone = std::make_shared<Texture>("../textures/stone.png");
+    std::shared_ptr<Texture> wool = std::make_shared<Texture>("../textures/wool.png");
+    std::shared_ptr<Texture> shroom = std::make_shared<Texture>("../textures/shroom.png");
 
     renderer = std::make_unique<Renderer>();
     gameCamera = std::make_shared<Camera>(screenWidth, screenHeight, glm::vec3(0.0f, 0.0f, 3.0f));
     renderer->setCamera(gameCamera);
 
     object = std::make_shared<Object>(stone, glm::vec3(0, 1, 0));
-    object2 = std::make_shared<Object>(stone, glm::vec3(2, 0, 0));
+    object2 = std::make_shared<Object>(wool, glm::vec3(2, 0, 0));
+    object3 = std::make_shared<Object>(shroom, glm::vec3(-2, .5f, 0));
 
     gameShader = std::make_shared<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
     renderer->setShader(gameShader);
     gameShader->setInt("texture0", 0);
-    stone->bind();
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -169,6 +165,8 @@ bool Game::update()
     glm::mat4 rot = glm::mat4(1.0f);
     rot = glm::rotate(rot, time, glm::vec3(1, 1, 0));
     object->setRot(rot);
+    object2->setY(sin(time));
+    object3->setScale(cos(time) + 1);
 
     return true;
 }
@@ -178,6 +176,12 @@ void Game::render()
     renderer->startDraw();
     renderer->draw(object);
     renderer->draw(object2);
+    renderer->draw(object3);
+
+    //Update screen
+    SDL_GL_SwapWindow( gWindow );
+    glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Game::close()
