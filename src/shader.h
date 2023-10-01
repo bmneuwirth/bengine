@@ -12,7 +12,7 @@ public:
     Shader(const Shader& other) = delete;
     Shader& operator=(const Shader& other) = delete;
 
-    // TODO: Add move operators
+    // TODO Add move operators
     void use() const;
     void setInt(const std::string &name, int value) const;
     void setMat4(const std::string &name, const float* value) const;

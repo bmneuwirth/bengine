@@ -26,9 +26,6 @@ Game::Game(int width, int height)
         //Event handler
         SDL_Event e;
 
-        //Enable text input
-        SDL_StartTextInput();
-
         //While application is running
         while( !quit )
         {
@@ -36,16 +33,11 @@ Game::Game(int width, int height)
             while( SDL_PollEvent( &e ) != 0 )
             {
                 //User requests quit
-                if( e.type == SDL_QUIT )
-                {
+                if( e.type == SDL_QUIT ) {
                     quit = true;
                 }
-                //Handle keypress with current mouse position
-                else if( e.type == SDL_TEXTINPUT )
-                {
-                    int x = 0, y = 0;
-                    SDL_GetMouseState( &x, &y );
-                    handleKeys(e.text.text[0]);
+                else if ( e.type == SDL_MOUSEMOTION) {
+                    gameCamera->processMouse(e.motion.xrel, e.motion.yrel);
                 }
             }
 
@@ -67,7 +59,6 @@ Game::Game(int width, int height)
             }
             // TODO don't hard code dt
             gameCamera->processMovement(.06, forward, right);
-
 
             //Render quad
             render();
@@ -100,6 +91,8 @@ bool Game::init()
     }
     else
     {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+
         SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
         SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
         SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
@@ -209,7 +202,7 @@ void Game::initGL()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    gameCamera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, -3.0f));
+    gameCamera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 proj = glm::mat4(1.0f);
     proj = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);

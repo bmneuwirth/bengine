@@ -9,9 +9,10 @@
 
 class Camera {
 public:
-    Camera(glm::vec3 pos, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
+    Camera(glm::vec3 pos, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), bool flyMode = false);
 
     void processMovement(float dt, float forwardAmt, float rightAmt);
+    void processMouse(float xOffset, float yOffset);
     glm::mat4 getViewMatrix();
 
 private:
@@ -25,6 +26,8 @@ private:
 
     float yaw;
     float pitch;
+
+    bool flyMode;
 };
 
 
