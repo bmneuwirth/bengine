@@ -6,9 +6,10 @@
 
 #include <GL/glew.h>
 #include <glm/ext/matrix_transform.hpp>
+#include <utility>
 
 Object::Object(std::shared_ptr<Texture> texture, glm::vec3 pos, glm::mat4 rot, glm::vec3 scale) {
-    this->texture = texture;
+    this->texture = std::move(texture);
     this->pos = pos;
     this->rot = rot;
     this->scale = scale;

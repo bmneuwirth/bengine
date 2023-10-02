@@ -6,7 +6,31 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <utility>
 
-Renderer::Renderer() {
+Renderer::Renderer(int screenWidth, int screenHeight) {
+    curShader = nullptr;
+    camera = nullptr;
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+
+    //Create window
+    window = SDL_CreateWindow( "Bengine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+    context = SDL_GL_CreateContext( window );
+
+    //Initialize GLEW
+    glewExperimental = GL_TRUE;
+    GLenum glewError = glewInit();
+    if( glewError != GLEW_OK )
+    {
+        printf( "Error initializing GLEW! %s\n", glewGetErrorString( glewError ) );
+    }
+
+    //Use Vsync
+    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    {
+        printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     glGenVertexArrays(1, &VAO);
@@ -15,6 +39,11 @@ Renderer::Renderer() {
     // position attribute
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+}
+
+Renderer::~Renderer() {
+    SDL_DestroyWindow( window );
+    window = nullptr;
 }
 
 void Renderer::startDraw() {
@@ -30,8 +59,18 @@ void Renderer::draw(const std::shared_ptr<Object>& obj) {
     glDrawArrays(GL_TRIANGLES, 0, obj->getVertCount());
 }
 
+void Renderer::endDraw() {
+    //Update screen
+    SDL_GL_SwapWindow( window );
+    glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Renderer::setCamera(std::shared_ptr<Camera> cam) {
     camera = std::move(cam);
+    if (curShader != nullptr) {
+        curShader->setMat4("projection", glm::value_ptr(camera->getProjMatrix()));
+    }
 }
 
 void Renderer::setShader(std::shared_ptr<Shader> shader) {
@@ -39,3 +78,4 @@ void Renderer::setShader(std::shared_ptr<Shader> shader) {
     curShader->use();
     curShader->setMat4("projection", glm::value_ptr(camera->getProjMatrix()));
 }
+

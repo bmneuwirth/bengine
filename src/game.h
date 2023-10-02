@@ -10,6 +10,11 @@
 #include "object.h"
 #include "renderer.h"
 
+/**
+ * A class representing the game itself.
+ *
+ * The game first is initialized, then updates and renders every frame.
+ */
 class Game {
 public:
     /**
@@ -27,11 +32,6 @@ private:
     bool init();
 
     /**
-     * Initializes rendering program
-     */
-    void initGL();
-
-    /**
      * Updates the game based on new inputs and past state
      * @return whether the update was successful
      */
@@ -47,32 +47,24 @@ private:
      */
     void close();
 
-    // The window rendered to
-    SDL_Window* gWindow = nullptr;
-
-    // OpenGL context
-    SDL_GLContext gContext;
-
-    // Shader
-    std::shared_ptr<Shader> gameShader;
-
     std::unique_ptr<Renderer> renderer;
 
     int screenWidth;
-
     int screenHeight;
+
+    bool paused;
+    bool fullscreen;
+
+    // Time when starting to update the current frame
+    Uint64 curTime;
 
     std::shared_ptr<Camera> gameCamera;
 
+    std::shared_ptr<Shader> gameShader;
+
     std::shared_ptr<Object> object;
-
     std::shared_ptr<Object> object2;
-
     std::shared_ptr<Object> object3;
-
-    Uint64 curTime;
-
-    bool paused;
 };
 
 #endif //CUBELANDS_GAME_H
