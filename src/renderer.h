@@ -16,7 +16,7 @@ public:
     Renderer();
 
     void startDraw();
-    void draw(std::shared_ptr<Object> obj);
+    void draw(const std::shared_ptr<Object>& obj);
     void setCamera(std::shared_ptr<Camera> cam);
     void setShader(std::shared_ptr<Shader> shader);
 

@@ -25,6 +25,8 @@ public:
 
     void setScale(float scale);
 
+    int getVertCount();
+
 private:
     void updateModel();
 
@@ -34,6 +36,7 @@ private:
     glm::mat4 rot;
     glm::vec3 scale;
 
+    int vertCount;
     bool shouldUpdate;
 };
 

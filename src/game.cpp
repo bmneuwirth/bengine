@@ -12,7 +12,7 @@ Game::Game(int width, int height)
 {
     screenWidth = width;
     screenHeight = height;
-    curTime = SDL_GetPerformanceCounter();
+    paused = false;
     //Start up SDL and create window
     if( !init() )
     {
@@ -20,6 +20,8 @@ Game::Game(int width, int height)
     }
     else
     {
+        curTime = SDL_GetPerformanceCounter();
+
         //Main loop flag
         bool quit = false;
 
@@ -132,7 +134,6 @@ bool Game::update()
     curTime = SDL_GetPerformanceCounter();
 
     double dt = ((double)(curTime - lastTime) / (double)SDL_GetPerformanceFrequency());
-    std::cout << "Delta time: " << dt << std::endl;
 
     //Event handler
     SDL_Event e;
@@ -143,18 +144,30 @@ bool Game::update()
         if( e.type == SDL_QUIT ) {
             return false;
         }
-        else if ( e.type == SDL_MOUSEMOTION) {
-            gameCamera->processMouse(e.motion.xrel, e.motion.yrel);
+        if ( e.type == SDL_KEYDOWN ) {
+            if (e.key.keysym.sym == SDLK_ESCAPE) {
+                paused = !paused;
+                if (paused) {
+                    SDL_SetRelativeMouseMode(SDL_FALSE);
+                } else {
+                    SDL_SetRelativeMouseMode(SDL_TRUE);
+                }
+            }
+        }
+        if (!paused) {
+            if ( e.type == SDL_MOUSEMOTION) {
+                gameCamera->processMouse(e.motion.xrel, e.motion.yrel);
+            }
         }
     }
 
-    const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+    if (paused) { // Return early so we don't do any of the update code
+        return true;
+    }
+
+    const Uint8* currentKeyStates = SDL_GetKeyboardState( nullptr );
     float forward = 0;
     float right = 0;
-
-    if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
-        return false;
-    }
     if (currentKeyStates[SDL_SCANCODE_W]) {
         forward += 1;
     }
@@ -168,10 +181,10 @@ bool Game::update()
         right -= 1;
     }
     // TODO don't hard code dt
-    gameCamera->processMovement(dt, forward, right);
+    gameCamera->processMovement((float)dt, forward, right);
 
     // rotate cube
-    float time = SDL_GetTicks() / 1000.0f;
+    float time = (float)SDL_GetTicks() / 1000.0f;
     glm::mat4 rot = glm::mat4(1.0f);
     rot = glm::rotate(rot, time, glm::vec3(1, 1, 0));
     object->setRot(rot);

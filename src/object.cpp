@@ -71,6 +71,7 @@ Object::Object(std::shared_ptr<Texture> texture, glm::vec3 pos, glm::mat4 rot, g
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    vertCount = sizeof(vertices) / 5;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
@@ -122,4 +123,8 @@ void Object::updateModel() {
 
 std::shared_ptr<Texture> Object::getTexture() {
     return texture;
+}
+
+int Object::getVertCount() {
+    return vertCount;
 }

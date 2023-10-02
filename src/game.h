@@ -71,6 +71,8 @@ private:
     std::shared_ptr<Object> object3;
 
     Uint64 curTime;
+
+    bool paused;
 };
 
 #endif //CUBELANDS_GAME_H
