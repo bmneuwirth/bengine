@@ -12,6 +12,7 @@ Game::Game(int width, int height)
 {
     screenWidth = width;
     screenHeight = height;
+    curTime = SDL_GetPerformanceCounter();
     //Start up SDL and create window
     if( !init() )
     {
@@ -127,6 +128,12 @@ void Game::initGL()
 
 bool Game::update()
 {
+    Uint64 lastTime = curTime;
+    curTime = SDL_GetPerformanceCounter();
+
+    double dt = ((double)(curTime - lastTime) / (double)SDL_GetPerformanceFrequency());
+    std::cout << "Delta time: " << dt << std::endl;
+
     //Event handler
     SDL_Event e;
 
@@ -145,6 +152,9 @@ bool Game::update()
     float forward = 0;
     float right = 0;
 
+    if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
+        return false;
+    }
     if (currentKeyStates[SDL_SCANCODE_W]) {
         forward += 1;
     }
@@ -158,7 +168,7 @@ bool Game::update()
         right -= 1;
     }
     // TODO don't hard code dt
-    gameCamera->processMovement(.06, forward, right);
+    gameCamera->processMovement(dt, forward, right);
 
     // rotate cube
     float time = SDL_GetTicks() / 1000.0f;
