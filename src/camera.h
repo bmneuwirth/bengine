@@ -39,6 +39,13 @@ public:
     void processMouse(float xOffset, float yOffset);
 
     /**
+    * Resizes the camera viewport
+    * @param w the new width in pixels
+    * @param h the new height in pixels
+    */
+    void resize(int w, int h);
+
+    /**
      * Returns the view matrix associated with the camera
      * @return the view matrix associated with the camera
      */

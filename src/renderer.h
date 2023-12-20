@@ -62,6 +62,11 @@ public:
      */
     void setShader(std::shared_ptr<Shader> shader);
 
+    /**
+    * Toggles whether the game should be in fullscreen.
+    */
+    void toggleFullscreen();
+
 private:
     // The window rendered to
     SDL_Window* window = nullptr;
@@ -72,6 +77,10 @@ private:
     GLuint VAO;
     std::shared_ptr<Camera> camera;
     std::shared_ptr<Shader> curShader;
+
+    bool isFullscreen;
+    SDL_DisplayMode fullscreenMode;
+    SDL_DisplayMode windowedMode;
 };
 
 

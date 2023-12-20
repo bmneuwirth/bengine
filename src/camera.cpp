@@ -5,6 +5,7 @@
 #include "camera.h"
 
 #include <iostream>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -56,6 +57,11 @@ void Camera::processMouse(float xOffset, float yOffset) {
         }
     }
     updateDir();
+}
+
+void Camera::resize(int w, int h) {
+    proj = glm::perspective(glm::radians(V_FOV), (float)w / (float)h, Z_NEAR, Z_FAR);
+    glViewport(0, 0, w, h);
 }
 
 glm::mat4 Camera::getViewMatrix() {

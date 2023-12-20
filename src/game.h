@@ -53,7 +53,6 @@ private:
     int screenHeight;
 
     bool paused;
-    bool fullscreen;
 
     // Time when starting to update the current frame
     Uint64 curTime;

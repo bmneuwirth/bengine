@@ -9,12 +9,23 @@
 Renderer::Renderer(int screenWidth, int screenHeight) {
     curShader = nullptr;
     camera = nullptr;
+    isFullscreen = false;
+
+    // Assume single display for now. We'll deal with multi-monitor stuff later.
+    SDL_GetCurrentDisplayMode(0, &fullscreenMode);
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
     //Create window
+    windowedMode.w = screenWidth;
+    windowedMode.h = screenHeight;
+    windowedMode.refresh_rate = fullscreenMode.refresh_rate;
+    windowedMode.format = fullscreenMode.format;
+    windowedMode.driverdata = fullscreenMode.driverdata;
+
     window = SDL_CreateWindow( "Bengine", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+    SDL_SetWindowDisplayMode(window, &windowedMode);
     context = SDL_GL_CreateContext( window );
 
     //Initialize GLEW
@@ -79,3 +90,16 @@ void Renderer::setShader(std::shared_ptr<Shader> shader) {
     curShader->setMat4("projection", glm::value_ptr(camera->getProjMatrix()));
 }
 
+void Renderer::toggleFullscreen() {
+    isFullscreen = !isFullscreen;
+    if (isFullscreen) {
+        SDL_SetWindowDisplayMode(window, &fullscreenMode);
+        camera->resize(fullscreenMode.w, fullscreenMode.h);
+    }
+    else {
+        SDL_SetWindowDisplayMode(window, &windowedMode);
+        camera->resize(windowedMode.w, windowedMode.h);
+    }
+    SDL_SetWindowFullscreen(window, isFullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    curShader->setMat4("projection", glm::value_ptr(camera->getProjMatrix()));
+}

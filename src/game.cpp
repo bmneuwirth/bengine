@@ -12,7 +12,6 @@ Game::Game(int width, int height) {
     screenWidth = width;
     screenHeight = height;
     paused = false;
-    fullscreen = false;
     //Start up SDL and create window
     if( !init() ) {
         printf( "Failed to initialize!\n" );
@@ -83,7 +82,7 @@ bool Game::update() {
         }
         if ( e.type == SDL_KEYDOWN ) {
             if (e.key.keysym.sym == SDLK_f) {
-                fullscreen = !fullscreen;
+                renderer->toggleFullscreen();
             }
             else if (e.key.keysym.sym == SDLK_ESCAPE) {
                 paused = !paused;
