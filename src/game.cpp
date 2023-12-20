@@ -6,7 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "game.h"
+#include "cube.h"
 #include "texture.h"
+#include "plane.h"
 
 Game::Game(int width, int height) {
     screenWidth = width;
@@ -51,13 +53,15 @@ bool Game::init() {
     std::shared_ptr<Texture> stone = std::make_shared<Texture>("../textures/stone.png");
     std::shared_ptr<Texture> wool = std::make_shared<Texture>("../textures/wool.png");
     std::shared_ptr<Texture> shroom = std::make_shared<Texture>("../textures/shroom.png");
+    std::shared_ptr<Texture> snow = std::make_shared<Texture>("../textures/snow.png");
 
-    gameCamera = std::make_shared<Camera>(screenWidth, screenHeight, glm::vec3(0.0f, 0.0f, 3.0f));
+    gameCamera = std::make_shared<Camera>(screenWidth, screenHeight, glm::vec3(0.0f, 2.0f, 3.0f));
     renderer->setCamera(gameCamera);
 
-    object = std::make_shared<Object>(stone, glm::vec3(0, 1, 0));
-    object2 = std::make_shared<Object>(wool, glm::vec3(2, 0, 0));
-    object3 = std::make_shared<Object>(shroom, glm::vec3(-2, .5f, 0));
+    plane = std::make_shared<Plane>(snow, glm::vec3(0, 0, 0), glm::mat4(1.0f), glm::vec3(20.0f));
+    object = std::make_shared<Cube>(stone, glm::vec3(0, 2, 0));
+    object2 = std::make_shared<Cube>(wool, glm::vec3(2, 1, 0));
+    object3 = std::make_shared<Cube>(shroom, glm::vec3(-2, 1.5f, 0));
 
     gameShader = std::make_shared<Shader>("../shaders/vertex.shader", "../shaders/frag.shader");
     renderer->setShader(gameShader);
@@ -129,7 +133,7 @@ bool Game::update() {
     glm::mat4 rot = glm::mat4(1.0f);
     rot = glm::rotate(rot, time, glm::vec3(1, 1, 0));
     object->setRot(rot);
-    object2->setY(sin(time));
+    object2->setY(sin(time) + 1);
     object3->setScale(cos(time) + 1);
 
     return true;
@@ -140,6 +144,7 @@ void Game::render() {
     renderer->draw(object);
     renderer->draw(object2);
     renderer->draw(object3);
+    renderer->draw(plane);
     renderer->endDraw();
 }
 

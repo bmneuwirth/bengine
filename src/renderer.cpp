@@ -67,6 +67,10 @@ void Renderer::draw(const std::shared_ptr<Object>& obj) {
     obj->getTexture()->bind();
 
     glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->getVBO());
+    // TODO Move this
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glDrawArrays(GL_TRIANGLES, 0, obj->getVertCount());
 }
 

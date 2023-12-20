@@ -10,20 +10,23 @@
 #include "texture.h"
 
 /**
- * A class that represents a rectangular prism in the world.
+ * A class that represents an object in the world.
  * Objects have textures and can be rendered to the screen.
  */
 class Object {
-public:
+protected:
     /**
-     * Creates a cube object with a given position, rotation, and scale
+     * Creates an object with a given position, rotation, and scale
+     * @param vertices pointer to the vert array for the object
+     * @param vertexArraySize the size of the array
      * @param texture the texture for the cube object
      * @param pos the position in world space of the cube
      * @param rot the rotation matrix of the cube
      * @param scale the scale factors of the cube
      */
-    explicit Object(std::shared_ptr<Texture> texture, glm::vec3 pos = glm::vec3(0, 0, 0), glm::mat4 rot = glm::mat4(1.0f), glm::vec3 scale = glm::vec3(1.0f));
+    explicit Object(const float* vertices, size_t vertexArraySize, std::shared_ptr<Texture> texture, glm::vec3 pos = glm::vec3(0, 0, 0), glm::mat4 rot = glm::mat4(1.0f), glm::vec3 scale = glm::vec3(1.0f));
 
+public:
     /**
      * Returns the model matrix corresponding to the object
      * @return the model matrix corresponding to the object
@@ -78,6 +81,12 @@ public:
      */
     int getVertCount();
 
+    /**
+     * Returns the VBO id for the object
+     * @return the VBO id for the object
+     */
+    unsigned int getVBO();
+
 private:
     /**
      * Updates the model matrix based on the position, rotation, and scale of the object
@@ -93,6 +102,8 @@ private:
     int vertCount;
     // Whether the model matrix needs to be updated next time it is retrieved
     bool shouldUpdate;
+
+    unsigned int VBO;
 };
 
 

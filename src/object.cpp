@@ -8,7 +8,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <utility>
 
-Object::Object(std::shared_ptr<Texture> texture, glm::vec3 pos, glm::mat4 rot, glm::vec3 scale) {
+const int FLOATS_PER_VERTEX = 5;
+
+Object::Object(const float* vertices, size_t vertexArraySize, std::shared_ptr<Texture> texture, glm::vec3 pos, glm::mat4 rot, glm::vec3 scale) {
     this->texture = std::move(texture);
     this->pos = pos;
     this->rot = rot;
@@ -16,65 +18,17 @@ Object::Object(std::shared_ptr<Texture> texture, glm::vec3 pos, glm::mat4 rot, g
     updateModel();
     shouldUpdate = false;
 
-    float vertices[] = {
-            // Back face
-            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-
-            // Front face
-            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-
-            // Left face
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            // Right face
-            0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-
-            // Bottom face
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            // Top face
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    unsigned int VBO;
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexArraySize, vertices, GL_STATIC_DRAW);
 
-    vertCount = sizeof(vertices) / 5;
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    vertCount = vertexArraySize / FLOATS_PER_VERTEX;
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)(3 * sizeof(float)));
+
+    // Unbind the current VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 glm::mat4 Object::getModel() {
@@ -128,4 +82,8 @@ std::shared_ptr<Texture> Object::getTexture() {
 
 int Object::getVertCount() {
     return vertCount;
+}
+
+unsigned int Object::getVBO() {
+    return VBO;
 }
