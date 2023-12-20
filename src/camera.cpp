@@ -27,6 +27,7 @@ Camera::Camera(int screenWidth, int screenHeight, glm::vec3 pos, glm::vec3 up, b
     this->yaw = YAW;
     this->pitch = PITCH;
     this->flyMode = flyMode;
+    this->floorY = pos.y;
     updateDir();
 }
 
@@ -62,6 +63,13 @@ void Camera::processMouse(float xOffset, float yOffset) {
 void Camera::resize(int w, int h) {
     proj = glm::perspective(glm::radians(V_FOV), (float)w / (float)h, Z_NEAR, Z_FAR);
     glViewport(0, 0, w, h);
+}
+
+void Camera::toggleFlyMode() {
+    flyMode = !flyMode;
+    if (!flyMode) {
+        pos.y = floorY;
+    }
 }
 
 glm::mat4 Camera::getViewMatrix() {

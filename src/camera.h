@@ -46,6 +46,11 @@ public:
     void resize(int w, int h);
 
     /**
+    * Toggles the debug camera mode
+    */
+    void toggleFlyMode();
+
+    /**
      * Returns the view matrix associated with the camera
      * @return the view matrix associated with the camera
      */
@@ -73,6 +78,7 @@ private:
 
     float yaw;
     float pitch;
+    float floorY;
 
     bool flyMode;
 };

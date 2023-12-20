@@ -92,6 +92,9 @@ bool Game::update() {
                     SDL_SetRelativeMouseMode(SDL_TRUE);
                 }
             }
+            else if (e.key.keysym.sym == SDLK_1) {
+                gameCamera->toggleFlyMode();
+            }
         }
         if (!paused) {
             if ( e.type == SDL_MOUSEMOTION) {
